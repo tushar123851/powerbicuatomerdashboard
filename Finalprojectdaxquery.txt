@@ -1,0 +1,107 @@
+1. Avarage sales per customer - Average revenue generated from each customer
+Avarage sales per customer = DIVIDE([Total sales],[Total Customers])
+
+2. Avarage sales per transaction - Average sales value per order
+Avarage sales per transaction = DIVIDE([Total sales],[Total orders],0)
+
+3. Avarage unit price - Average selling price per unit
+Avarage unit price = DIVIDE([Total sales],[Total Units])
+
+4. MOM Growth % - Month-over-Month growth percentage
+MOM Growth % = VAR prev = [Sales PM] RETURN DIVIDE([Total sales] - prev,prev,0)
+
+5. YoY Growth % - Year-over-Year growth percentage
+YoY Growth % = VAR Prev = [Sales PY] RETURN DIVIDE( [Total Sales] - Prev, Prev, 0 )
+
+6. Total sales - Total sales revenue
+Total sales = SUM('FinalProject_Dataset - Sales_Fact'[TotalAmount])
+
+7. Total Units - Total units sold
+Total Units = SUM('FinalProject_Dataset - Sales_Fact'[UnitsSold])
+
+8. Total Cost - Total cost based on quantity × product price
+Total Cost = SUMX('FinalProject_Dataset - Sales_Fact','FinalProject_Dataset - Sales_Fact'[UnitsSold] * RELATED('FinalProject_Dataset - Product_Dim'[Price]))
+
+9. Total Profit - Profit (sales – cost)
+Total Profit = [Total sales] - [Total Cost]
+
+10. Net sales - Net revenue after subtracting returned sales
+Net sales = [Total sales] - [Total Return Sales]
+
+11. Total Customers - Number of unique customers
+Total Customers = DISTINCTCOUNT('FinalProject_Dataset - Sales_Fact'[CustomerID])
+
+12. Total orders - Number of unique orders (SalesID)
+Total orders = DISTINCTCOUNT('FinalProject_Dataset - Sales_Fact'[SaleID])
+
+13. Total Return - Total number of return transactions
+Total Return = DISTINCTCOUNT('FinalProject_Dataset - Returns_Fact'[ReturnID])
+
+14. Total Return Count - Distinct returned orders
+Total Return Count = DISTINCTCOUNT('FinalProject_Dataset - Returns_Fact'[SaleID])
+
+15. Total Return Sales - Sales amount of returned items
+Total Return Sales = SUMX( VALUES('FinalProject_Dataset - Returns_Fact'[SaleID]), CALCULATE(SUM('FinalProject_Dataset - Sales_Fact'[TotalAmount])))
+
+16. Return Rate % (By Orders) - Returned orders ÷ total orders
+Return Rate %(By Orders) = DIVIDE([Total Return Count],[Total orders],0)
+
+17. Return rate % (By Sales) - Returned sales ÷ total sales
+Return rate %(By Sales) = DIVIDE([Total Return Sales],[Total sales])
+
+18. Sales MTD - Month-To-Date sales
+Sales MTD = TOTALMTD([Total sales],'FinalProject_Dataset - Date_Dim'[Date])
+
+19. Sales QTD - Quarter-To-Date sales
+Sales QTD = TOTALQTD([Total sales],'FinalProject_Dataset - Date_Dim'[Date])
+
+20. Sales YTD - Year-To-Date sales
+Sales YTD = TOTALYTD([Total sales],'FinalProject_Dataset - Date_Dim'[Date])
+
+21. Sales PM - Previous month’s sales
+Sales PM = CALCULATE([Total Sales],PREVIOUSMONTH('FinalProject_Dataset - Date_Dim'[Date]))
+
+22. Sales PY - Previous year’s sales
+Sales PY = CALCULATE([Total sales],SAMEPERIODLASTYEAR('FinalProject_Dataset - Date_Dim'[Date]))
+
+23. Sales KPI Status - KPI status based on Net Sales
+Sales KPI Status = 
+SWITCH(
+    TRUE(),
+    [Net Sales] >= 100000, "Excellent",
+    [Net Sales] >= 50000, "Good",
+    [Net Sales] >= 10000, "Average",
+    "Poor"
+)
+
+24. TopN Customers Profit - Top 5 customers by profit
+TopN Customers Profit = 
+VAR TopCustomers =
+    TOPN(
+        5,                                 
+        VALUES( 'FinalProject_Dataset - Sales_Fact'[CustomerID] ),
+        CALCULATE( [Total Profit] ),
+        DESC
+    )
+RETURN
+SUMX(
+    TopCustomers,
+    CALCULATE( [Total Profit] )
+)
+
+25. TopN Products Sales - Top 5 products by sales
+TopN Products Sales = 
+VAR TopProducts =
+    TOPN(
+        5,                                  
+        VALUES( 'FinalProject_Dataset - Sales_Fact'[ProductID] ),
+        CALCULATE( [Total Sales] ),
+        DESC
+    )
+RETURN
+SUMX(
+    TopProducts,
+    CALCULATE( [Total Sales] )
+)
+
+
